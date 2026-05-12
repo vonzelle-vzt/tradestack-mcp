@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "tradestack": {
+      "command": "npx",
+      "args": ["-y", "tradestack-mcp"],
+      "env": {
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}

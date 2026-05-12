@@ -1,0 +1,66 @@
+{
+  "name": "tradestack-mcp",
+  "version": "0.1.0",
+  "description": "Market Context Protocol for TradingView and every major trading platform. Connect. Query. Analyze. Trade Smarter.",
+  "type": "module",
+  "license": "MIT",
+  "author": "VZT Tech Consulting",
+  "bin": {
+    "tradestack-mcp": "./dist/server.js"
+  },
+  "main": "./dist/server.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.23.5",
+    "undici": "^6.21.0",
+    "lru-cache": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2",
+    "tsx": "^4.19.2",
+    "vitest": "^2.1.5",
+    "eslint": "^9.15.0",
+    "@typescript-eslint/parser": "^8.15.0",
+    "@typescript-eslint/eslint-plugin": "^8.15.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "tradingview",
+    "tradelocker",
+    "ninjatrader",
+    "metatrader",
+    "ctrader",
+    "trading",
+    "pine-script",
+    "claude",
+    "ai-agents"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vonzelle-vzt/tradestack-mcp.git"
+  },
+  "homepage": "https://github.com/vonzelle-vzt/tradestack-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/vonzelle-vzt/tradestack-mcp/issues"
+  }
+}
