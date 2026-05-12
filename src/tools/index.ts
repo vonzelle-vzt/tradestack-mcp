@@ -13,6 +13,7 @@ import {
   webhookRotateTool,
 } from "./state.js";
 import { alertsRecentTool } from "./alerts.js";
+import { symbolOhlcvTool, symbolQuoteTool } from "./ohlcv.js";
 import type { z, ZodTypeAny } from "zod";
 
 export interface ToolDefinition<S extends ZodTypeAny = ZodTypeAny> {
@@ -36,4 +37,6 @@ export const allTools: ToolDefinition[] = [
   webhookTokenTool,
   webhookRotateTool,
   alertsRecentTool,
+  symbolOhlcvTool,
+  symbolQuoteTool,
 ];

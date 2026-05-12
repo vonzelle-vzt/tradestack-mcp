@@ -1,6 +1,6 @@
 {
   "name": "tradestack-mcp",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Market Context Protocol for TradingView and every major trading platform. Connect. Query. Analyze. Trade Smarter.",
   "type": "module",
   "license": "MIT",
