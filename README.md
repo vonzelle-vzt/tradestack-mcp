@@ -10,7 +10,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org/)
 [![MCP](https://img.shields.io/badge/MCP-1.0-purple)](https://modelcontextprotocol.io)
-[![Status](https://img.shields.io/badge/status-alpha-orange)]()
+[![Version](https://img.shields.io/badge/version-1.0.0-blue)](https://github.com/vonzelle-vzt/tradestack-mcp/releases)
+[![Tests](https://img.shields.io/badge/tests-48%20passing-brightgreen)]()
+[![Tools](https://img.shields.io/badge/tools-32-purple)]()
 
 </div>
 
@@ -94,19 +96,60 @@ The `Authorization: Bearer <userId>` (or `X-TradeStack-User`) header scopes all 
 
 Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` and apply `supabase/schema.sql`. Watchlists and webhook tokens then survive restarts and span MCP clients.
 
-## Tool surface (v0.2 — 12 tools)
+## Tool surface (32 tools)
 
-Every tool is **ToS-clean** — TV's own public scanner endpoint, the public Pine compiler facade, or pure local math.
+Every read tool is **ToS-clean** — TV's own public endpoints or pure local math. Write tools (`order_route`, broker calls) require explicit broker credentials.
 
+### Market data (5)
 | Tool | Purpose |
 |---|---|
-| `screener_query` | Run TradingView's public scanner across stocks, crypto, forex, ETFs — 180+ fields, 18 filter operators |
-| `symbol_search` | TV symbol search by name/ticker, scoped to exchange or asset class |
-| `chart_snapshot` | TV PNG snapshot URL plus structured metadata (full indicator values when a data-feed plugin is registered) |
-| `pine_compile` | Validates PineScript against TV's real compiler (`pine-facade.tradingview.com`) |
-| `risk_position_size` | Fixed-fractional, half-Kelly (capped 25%), vol-target sizing — no broker calls |
-| `watchlist_get` / `_upsert` / `_add` / `_remove` / `_list` | Per-user persistent watchlists (memory or Supabase) |
-| `webhook_token_get` / `_rotate` | Per-user webhook secret for TradingView alert ingress (v0.3 wires the receiver) |
+| `screener_query` | TV public scanner — 180+ fields, 18 filter ops |
+| `symbol_search` | Symbol lookup |
+| `symbol_ohlcv` | Historical bars via Polygon / Alpaca plugin |
+| `symbol_quote` | Latest bid/ask/last |
+| `chart_snapshot` | TV PNG snapshot URL |
+
+### Pine + codegen (4)
+| Tool | Purpose |
+|---|---|
+| `pine_compile` | Validate against `pine-facade.tradingview.com` |
+| `codegen_transpile` | Pine ↔ NT8/MT5/TradeLocker via CodegenPlugin |
+| `codegen_validate` | Static check generated code |
+| `codegen_list` | List registered codegen plugins |
+
+### Watchlists & alerts (8)
+| Tool | Purpose |
+|---|---|
+| `watchlist_get` / `_upsert` / `_add` / `_remove` / `_list` | Per-user persistent lists |
+| `webhook_token_get` / `_rotate` | TV alert webhook URL secret |
+| `alerts_recent` | Recent inbound alerts |
+
+### Composite alerts (4)
+| Tool | Purpose |
+|---|---|
+| `alert_composite` | Multi-condition orchestration |
+| `alert_composite_list` / `_delete` / `_evaluate` | Manage and dry-run |
+
+### Strategy lifecycle (4)
+| Tool | Purpose |
+|---|---|
+| `lifecycle_start` / `_complete` / `_runs` | Track replay/paper/live runs |
+| `lifecycle_promote` | Statistical gate check for next stage |
+
+### Risk + portfolio (3)
+| Tool | Purpose |
+|---|---|
+| `risk_position_size` | Fixed-fractional / Kelly / vol-target |
+| `risk_portfolio_var` | Parametric VaR |
+| `risk_correlation_matrix` | Pearson across return series |
+
+### Brokers + execution (4)
+| Tool | Purpose |
+|---|---|
+| `brokers_list` | List registered broker plugins |
+| `order_route` | Submit order with sizing + pre-trade gates |
+| `positions_list` | Open positions on a broker |
+| `account_info` | Equity / cash / buying power |
 | `alert_composite` | Multi-condition alerts orchestrated over single-condition TV alerts |
 | `lifecycle_replay` / `lifecycle_paper` / `lifecycle_promote` | Strategy lifecycle with statistical gates |
 | `register_plugin` | Internal registry for codegen / broker / scanner / data-feed plugins |

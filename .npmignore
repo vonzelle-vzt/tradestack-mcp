@@ -1,0 +1,17 @@
+src/
+docs/
+examples/
+supabase/
+.github/
+.vscode/
+node_modules/
+*.test.ts
+*.tsbuildinfo
+tsconfig.json
+vitest.config.ts
+.env
+.env.example
+.eslintrc*
+CHANGELOG.md
+CONTRIBUTING.md
+CLAUDE.md

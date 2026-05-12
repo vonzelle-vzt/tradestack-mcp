@@ -8,15 +8,16 @@ import { CallToolRequestSchema, ListToolsRequestSchema, isInitializeRequest } fr
 import { zodToJsonSchema } from "zod-to-json-schema";
 import { loadConfig } from "./lib/config.js";
 import { log, setLogLevel } from "./lib/logger.js";
-import { runWithContext } from "./lib/context.js";
+import { runWithContext, currentUserId } from "./lib/context.js";
 import { allTools } from "./tools/index.js";
+import { withAudit } from "./lib/audit.js";
 import { getStateBackend } from "./state/index.js";
 import { createWebhookRouter } from "./webhook/index.js";
 import { loadEnvPlugins } from "./plugins/bootstrap.js";
 
 function buildServer(): Server {
   const server = new Server(
-    { name: "tradestack-mcp", version: "0.8.0" },
+    { name: "tradestack-mcp", version: "1.0.0" },
     { capabilities: { tools: {} } },
   );
 
@@ -35,7 +36,7 @@ function buildServer(): Server {
     }
     try {
       const parsed = tool.inputSchema.parse(req.params.arguments ?? {});
-      const result = await tool.handler(parsed);
+      const result = await withAudit(tool.name, currentUserId(), parsed, () => tool.handler(parsed));
       return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
     } catch (err) {
       return { isError: true, content: [{ type: "text", text: (err as Error).message }] };
@@ -80,7 +81,7 @@ async function startHttp(host: string, port: number): Promise<void> {
   const transports = new Map<string, StreamableHTTPServerTransport>();
 
   app.get("/healthz", (_req, res) => {
-    res.json({ ok: true, service: "tradestack-mcp", version: "0.8.0" });
+    res.json({ ok: true, service: "tradestack-mcp", version: "1.0.0" });
   });
 
   app.post("/mcp", async (req: Request, res: Response) => {
@@ -138,7 +139,7 @@ async function main(): Promise<void> {
   loadEnvPlugins();
 
   log.info("tradestack-mcp starting", {
-    version: "0.8.0",
+    version: "1.0.0",
     transport: cfg.transport,
     tools: allTools.length,
     supabase: Boolean(cfg.supabase),

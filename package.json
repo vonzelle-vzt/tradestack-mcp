@@ -1,6 +1,6 @@
 {
   "name": "tradestack-mcp",
-  "version": "0.8.0",
+  "version": "1.0.0",
   "description": "Market Context Protocol for TradingView and every major trading platform. Connect. Query. Analyze. Trade Smarter.",
   "type": "module",
   "license": "MIT",
@@ -21,7 +21,8 @@
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

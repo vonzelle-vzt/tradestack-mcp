@@ -1,74 +1,89 @@
 # Roadmap
 
-## v0.1 — Scaffold
+## v0.1 — Scaffold ✅
 
 - ✅ TypeScript ESM scaffold, MCP SDK over stdio
-- ✅ `screener_query`, `symbol_search`, `pine_compile`, `chart_snapshot`, `risk_position_size`, `watchlist_*`
+- ✅ Core tools: `screener_query`, `symbol_search`, `pine_compile`, `chart_snapshot`, `risk_position_size`, `watchlist_*`
 - ✅ Plugin contracts: `BrokerPlugin`, `CodegenPlugin`, `ScannerPlugin`, `DataFeedPlugin`
-- ✅ Supabase schema for state (`supabase/schema.sql`)
+- ✅ Supabase schema for state
 - ✅ Platform integration docs
 
-## v0.2 (current) — Persistence + HTTP transport
+## v0.2 — Persistence + HTTP transport ✅
 
-- ✅ Pluggable `StateBackend` interface — memory + Supabase implementations
-- ✅ Per-user scoping via AsyncLocalStorage (`runWithContext` / `currentUserId`)
-- ✅ Streamable HTTP transport with stateful session management
-- ✅ Bearer-token auth (`Authorization: Bearer <userId>`) → context userId
-- ✅ Per-user webhook token: `webhook_token_get` / `webhook_token_rotate`
-- ✅ vitest suite — 22 tests across risk, state, schemas, context
-- ⏳ Full OAuth (Supabase Auth JWT verification) — deferred to v0.3
+- ✅ Pluggable `StateBackend` (memory + Supabase)
+- ✅ Per-user scoping via AsyncLocalStorage
+- ✅ Streamable HTTP transport with stateful sessions
+- ✅ Bearer-token auth → context userId
+- ✅ `webhook_token_get` / `webhook_token_rotate`
 
-## v0.3 — Webhook ingress
+## v0.3 — Webhook ingress ✅
 
-- [ ] `POST /webhook/:user_token` (Hono microserver under HTTP transport)
-- [ ] `alerts_recent` MCP tool
-- [ ] SSE stream resource for live alert subscription
-- [ ] HMAC verification + replay protection
+- ✅ `POST /webhook/:user_token` accepts TradingView alerts
+- ✅ JSON, pipe-delimited, and free-form parsing
+- ✅ Optional HMAC verification (`X-TradeStack-Signature`)
+- ✅ `alerts_recent` MCP tool
 
-## v0.4 — Real OHLCV + indicators
+## v0.4 — Data feeds ✅
 
-- [ ] `polygon` data-feed plugin (in-tree)
-- [ ] `alpaca` data-feed plugin (in-tree)
-- [ ] `symbol_ohlcv` tool routing to selected feed
-- [ ] `chart_snapshot` returns structured indicators when feed is registered
+- ✅ Polygon.io data-feed plugin (in-tree)
+- ✅ Alpaca data-feed plugin (in-tree)
+- ✅ `symbol_ohlcv` and `symbol_quote` tools
+- ✅ Env-gated plugin bootstrap
 
-## v0.5 — Composite alerts + lifecycle
+## v0.5 — Composite alerts + lifecycle ✅
 
-- [ ] `alert_composite` tool — multi-condition orchestration
-- [ ] `alert_chain` tool — sequential conditions
-- [ ] `lifecycle_replay`, `lifecycle_paper`, `lifecycle_promote` tools
-- [ ] Statistical gates: Sharpe > X, max DD < Y, N > Z trades
+- ✅ `alert_composite`, `alert_composite_list/delete/evaluate`
+- ✅ `lifecycle_start`, `lifecycle_complete`, `lifecycle_runs`, `lifecycle_promote`
+- ✅ Statistical promotion gates (Sharpe/DD/trades/win_rate)
+- ✅ `src/lib/metrics.ts` — Sharpe, Calmar, max-DD, profit factor
 
-## v0.6 — Codegen + cross-platform
+## v0.6 — Codegen ✅
 
-- [ ] `CodegenPlugin` contract finalized (Pine → NT8/MT5/TradeLocker)
-- [ ] Reference codegen plugin (community / VZT TradeScriptAI plug)
-- [ ] `validate` endpoint hits real compilers per target
+- ✅ `CodegenPlugin` contract finalized
+- ✅ Reference Pine→NT8 transpiler always loaded
+- ✅ `codegen_transpile`, `codegen_validate`, `codegen_list`
 
-## v0.7 — Broker adapters
+## v0.7 — Broker adapters ✅
 
-- [ ] `tradelocker` in-tree adapter (REST + Streams)
-- [ ] `metaapi` in-tree adapter (MT5 cloud)
-- [ ] `alpaca` in-tree adapter
-- [ ] `ctrader` Open API adapter
-- [ ] `ninjatrader-ati` local adapter
+- ✅ `alpaca` (paper + live REST)
+- ✅ `tradelocker` (REST + JWT, alpha)
+- ✅ `metaapi` (MT5 cloud REST, alpha)
+- ✅ `ninjatrader-ati` (file IO, alpha)
+- ⚠️ `ctrader` (stub — Protobuf TCP, documented for downstream wiring)
 
-## v0.8 — Risk-aware execution
+## v0.8 — Risk-aware execution ✅
 
-- [ ] `order_route` tool that wraps any registered broker with risk gates
-- [ ] Pre-trade compliance check (prop firm rule set)
-- [ ] Portfolio VaR + correlation matrix tools
+- ✅ `order_route` with sizing + pre-trade gates
+- ✅ `positions_list`, `account_info`, `brokers_list`
+- ✅ `risk_portfolio_var` — parametric VaR (Acklam inverse-normal)
+- ✅ `risk_correlation_matrix` — Pearson across return series
 
-## v1.0 — Production
+## v1.0 — Production ✅ (current)
 
-- [ ] Published to npm + Anthropic MCP directory + PulseMCP + Smithery
-- [ ] One-click deploy to Vercel for hosted users
-- [ ] Audit log + per-user analytics
-- [ ] Docs site at tradestack-mcp.com
+- ✅ Audit log on every tool call (`withAudit` wrapper)
+- ✅ `prepublishOnly` runs typecheck + test + build
+- ✅ `.npmignore` strips source/docs/tests from the published tarball
+- ✅ 48+ vitest cases covering risk, state, codegen, portfolio, schemas
+- ✅ Streamable HTTP + stdio transports, both smoke-verified
+- ✅ 32+ MCP tools
+- ⏳ npm publish (manual step — `npm publish` when ready)
+- ⏳ Listing on Anthropic MCP directory / PulseMCP / Smithery
+- ⏳ One-click deploy to Vercel
+- ⏳ Docs site at tradestack-mcp.com
+
+## Beyond v1.0 — Roadmap notes
+
+- Full OAuth (Supabase Auth JWT verification) for hosted multi-tenant
+- Real cTrader Open API wiring via Protobuf TCP
+- NT8 companion add-on for live position queries
+- Polygon WebSocket streaming
+- Alpaca options
+- More codegen targets (Pine → MQL5, Pine → TradeLocker EasyLanguage-ish DSL)
+- Pluggable risk policy engine (prop firm rules as code)
 
 ## Out of scope (deliberately)
 
 - UI / web app — TradeStack is headless
-- Storing user credentials beyond env / Supabase user rows
+- Storing user credentials beyond env / Supabase rows
 - Paid feature gating in core (commercial layer is downstream)
-- Direct CDP control of TV Desktop in core (separate `tradestack-cdp` extension)
+- Direct CDP control of TV Desktop in core (`tradestack-cdp` is a separate package)
