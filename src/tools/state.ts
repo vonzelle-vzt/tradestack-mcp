@@ -1,92 +1,73 @@
-/**
- * Watchlist state — in-memory fallback when Supabase isn't configured.
- * When SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are present, this module
- * delegates to src/state/supabase.ts (TODO).
- */
 import { z } from "zod";
+import { getStateBackend } from "../state/index.js";
+import { currentUserId } from "../lib/context.js";
+import { loadConfig } from "../lib/config.js";
 
-interface Watchlist {
-  name: string;
-  symbols: string[];
-  note?: string;
-  updated_at: string;
-}
+const backend = () => getStateBackend(loadConfig());
 
-const memory = new Map<string, Watchlist>();
-
-export const watchlistGetSchema = z.object({
-  name: z.string().min(1),
-});
-
+export const watchlistGetSchema = z.object({ name: z.string().min(1) });
 export const watchlistUpsertSchema = z.object({
   name: z.string().min(1),
   symbols: z.array(z.string().min(1)).min(0),
   note: z.string().optional(),
 });
-
-export const watchlistAddSchema = z.object({
-  name: z.string().min(1),
-  symbol: z.string().min(1),
-});
-
-export const watchlistRemoveSchema = z.object({
-  name: z.string().min(1),
-  symbol: z.string().min(1),
-});
-
-function nowIso(): string {
-  return new Date().toISOString();
-}
+export const watchlistAddSchema = z.object({ name: z.string().min(1), symbol: z.string().min(1) });
+export const watchlistRemoveSchema = z.object({ name: z.string().min(1), symbol: z.string().min(1) });
 
 export const watchlistGetTool = {
   name: "watchlist_get",
-  description: "Return symbols and note for a named watchlist. Empty result if not found.",
+  description: "Return symbols and note for a named watchlist (scoped to current user). Empty result if not found.",
   inputSchema: watchlistGetSchema,
-  handler: async ({ name }: z.infer<typeof watchlistGetSchema>) =>
-    memory.get(name) ?? { name, symbols: [], updated_at: nowIso() },
+  handler: async ({ name }: z.infer<typeof watchlistGetSchema>) => {
+    const wl = await backend().watchlistGet(currentUserId(), name);
+    return wl ?? { name, symbols: [], updated_at: new Date().toISOString() };
+  },
 };
 
 export const watchlistUpsertTool = {
   name: "watchlist_upsert",
-  description: "Create or replace a named watchlist with the supplied symbols and optional note.",
+  description: "Create or replace a named watchlist with the supplied symbols and optional note (scoped to current user).",
   inputSchema: watchlistUpsertSchema,
-  handler: async (input: z.infer<typeof watchlistUpsertSchema>) => {
-    const wl: Watchlist = { ...input, updated_at: nowIso() };
-    memory.set(input.name, wl);
-    return wl;
-  },
+  handler: async (input: z.infer<typeof watchlistUpsertSchema>) =>
+    backend().watchlistUpsert(currentUserId(), { ...input, updated_at: new Date().toISOString() }),
 };
 
 export const watchlistAddTool = {
   name: "watchlist_add",
-  description: "Add a single symbol to a watchlist (creates the watchlist if missing).",
+  description: "Add a single symbol to a watchlist (creates the watchlist if missing). Scoped to current user.",
   inputSchema: watchlistAddSchema,
-  handler: async ({ name, symbol }: z.infer<typeof watchlistAddSchema>) => {
-    const wl = memory.get(name) ?? { name, symbols: [], updated_at: nowIso() };
-    if (!wl.symbols.includes(symbol)) wl.symbols.push(symbol);
-    wl.updated_at = nowIso();
-    memory.set(name, wl);
-    return wl;
-  },
+  handler: async ({ name, symbol }: z.infer<typeof watchlistAddSchema>) =>
+    backend().watchlistAdd(currentUserId(), name, symbol),
 };
 
 export const watchlistRemoveTool = {
   name: "watchlist_remove",
-  description: "Remove a symbol from a watchlist. Watchlist is preserved even if it becomes empty.",
+  description: "Remove a symbol from a watchlist. Watchlist is preserved even if it becomes empty. Scoped to current user.",
   inputSchema: watchlistRemoveSchema,
-  handler: async ({ name, symbol }: z.infer<typeof watchlistRemoveSchema>) => {
-    const wl = memory.get(name);
-    if (!wl) return { name, symbols: [], updated_at: nowIso() };
-    wl.symbols = wl.symbols.filter((s) => s !== symbol);
-    wl.updated_at = nowIso();
-    return wl;
-  },
+  handler: async ({ name, symbol }: z.infer<typeof watchlistRemoveSchema>) =>
+    backend().watchlistRemove(currentUserId(), name, symbol),
 };
 
 export const watchlistListTool = {
   name: "watchlist_list",
-  description: "List all watchlist names with sizes.",
+  description: "List all watchlists for the current user with sizes.",
   inputSchema: z.object({}),
-  handler: async () =>
-    Array.from(memory.values()).map((w) => ({ name: w.name, size: w.symbols.length, updated_at: w.updated_at })),
+  handler: async () => backend().watchlistList(currentUserId()),
+};
+
+export const webhookTokenSchema = z.object({});
+export const webhookTokenTool = {
+  name: "webhook_token_get",
+  description:
+    "Return the current user's webhook token (the secret slug used in the TradingView alert webhook URL). Returns null if not yet provisioned.",
+  inputSchema: webhookTokenSchema,
+  handler: async () => ({ token: await backend().webhookTokenGet(currentUserId()) }),
+};
+
+export const webhookRotateTool = {
+  name: "webhook_token_rotate",
+  description:
+    "Rotate the current user's webhook token, returning the new value. The old token immediately stops accepting inbound TradingView alerts.",
+  inputSchema: webhookTokenSchema,
+  handler: async () => ({ token: await backend().webhookTokenRotate(currentUserId()) }),
 };

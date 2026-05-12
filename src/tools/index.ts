@@ -9,6 +9,8 @@ import {
   watchlistAddTool,
   watchlistRemoveTool,
   watchlistListTool,
+  webhookTokenTool,
+  webhookRotateTool,
 } from "./state.js";
 import type { z, ZodTypeAny } from "zod";
 
@@ -30,4 +32,6 @@ export const allTools: ToolDefinition[] = [
   watchlistAddTool,
   watchlistRemoveTool,
   watchlistListTool,
+  webhookTokenTool,
+  webhookRotateTool,
 ];

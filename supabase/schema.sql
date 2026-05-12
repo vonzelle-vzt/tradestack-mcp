@@ -1,11 +1,27 @@
 -- TradeStack MCP persistent state schema
 -- Apply with: psql $DATABASE_URL -f supabase/schema.sql
 --
--- All tables use UUID primary keys and have RLS enabled. Service-role key
+-- Most tables use UUID primary keys and have RLS enabled. Service-role key
 -- bypasses RLS; the MCP server should always connect with service-role.
 -- Per-user scoping is enforced in application code via user_id.
+--
+-- user_id is stored as text for compatibility with non-Supabase auth backends.
+-- Cast / migrate to uuid if you bind to Supabase Auth.
 
 create extension if not exists "uuid-ossp";
+
+-- ─────────────────────────────────────────────────────────────────────
+-- Per-user settings (webhook tokens, future prefs)
+-- ─────────────────────────────────────────────────────────────────────
+create table if not exists user_settings (
+  user_id        text primary key,
+  webhook_token  text,
+  webhook_rotated_at timestamptz,
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now()
+);
+
+create index if not exists user_settings_webhook_token_idx on user_settings(webhook_token);
 
 -- ─────────────────────────────────────────────────────────────────────
 -- Watchlists

@@ -1,6 +1,6 @@
 {
   "name": "tradestack-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Market Context Protocol for TradingView and every major trading platform. Connect. Query. Analyze. Trade Smarter.",
   "type": "module",
   "license": "MIT",
@@ -25,12 +25,15 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "@supabase/supabase-js": "^2.45.4",
+    "express": "^5.0.1",
     "zod": "^3.23.8",
     "zod-to-json-schema": "^3.23.5",
     "undici": "^6.21.0",
     "lru-cache": "^11.0.0"
   },
   "devDependencies": {
+    "@types/express": "^5.0.0",
     "@types/node": "^22.10.0",
     "typescript": "^5.7.2",
     "tsx": "^4.19.2",

@@ -69,24 +69,44 @@ git clone https://github.com/vonzelle-vzt/tradestack-mcp.git
 cd tradestack-mcp
 npm install
 npm run build
-npm start              # stdio
-MCP_TRANSPORT=http npm start   # remote / hosted
+npm start                              # stdio (default)
+MCP_TRANSPORT=http MCP_HTTP_PORT=3737 npm start   # remote / hosted
 ```
 
-## Tool surface (v0)
+### Hosted HTTP usage
 
-Core tools that ship with the server. **Every one of these is ToS-clean** — TV's own public scanner endpoint, the public Pine compiler facade, or pure local math.
+```bash
+# health probe
+curl http://localhost:3737/healthz
+# → {"ok":true,"service":"tradestack-mcp","version":"0.2.0"}
+
+# MCP initialize (Streamable HTTP w/ SSE)
+curl -i -X POST http://localhost:3737/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -H "Authorization: Bearer my-user-id" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"1"}}}'
+```
+
+The `Authorization: Bearer <userId>` (or `X-TradeStack-User`) header scopes all stateful tools (watchlists, webhook tokens) per user.
+
+### Optional persistence (Supabase)
+
+Set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` and apply `supabase/schema.sql`. Watchlists and webhook tokens then survive restarts and span MCP clients.
+
+## Tool surface (v0.2 — 12 tools)
+
+Every tool is **ToS-clean** — TV's own public scanner endpoint, the public Pine compiler facade, or pure local math.
 
 | Tool | Purpose |
 |---|---|
 | `screener_query` | Run TradingView's public scanner across stocks, crypto, forex, ETFs — 180+ fields, 18 filter operators |
 | `symbol_search` | TV symbol search by name/ticker, scoped to exchange or asset class |
-| `symbol_ohlcv` | Historical bars (delegated to data-feed plugin: TV, Polygon, Databento, Alpaca) |
-| `chart_snapshot` | One call returns both **image** (for vision) and **structured indicators** (for logic) |
+| `chart_snapshot` | TV PNG snapshot URL plus structured metadata (full indicator values when a data-feed plugin is registered) |
 | `pine_compile` | Validates PineScript against TV's real compiler (`pine-facade.tradingview.com`) |
-| `watchlist_get` / `watchlist_add` / `watchlist_remove` | Persistent watchlists across sessions |
-| `risk_position_size` | Fixed-fractional, Kelly, vol-target sizing — no broker calls |
-| `risk_portfolio_var` | Portfolio VaR at chosen confidence interval |
+| `risk_position_size` | Fixed-fractional, half-Kelly (capped 25%), vol-target sizing — no broker calls |
+| `watchlist_get` / `_upsert` / `_add` / `_remove` / `_list` | Per-user persistent watchlists (memory or Supabase) |
+| `webhook_token_get` / `_rotate` | Per-user webhook secret for TradingView alert ingress (v0.3 wires the receiver) |
 | `alert_composite` | Multi-condition alerts orchestrated over single-condition TV alerts |
 | `lifecycle_replay` / `lifecycle_paper` / `lifecycle_promote` | Strategy lifecycle with statistical gates |
 | `register_plugin` | Internal registry for codegen / broker / scanner / data-feed plugins |

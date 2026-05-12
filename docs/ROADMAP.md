@@ -1,6 +1,6 @@
 # Roadmap
 
-## v0.1 (current — alpha)
+## v0.1 — Scaffold
 
 - ✅ TypeScript ESM scaffold, MCP SDK over stdio
 - ✅ `screener_query`, `symbol_search`, `pine_compile`, `chart_snapshot`, `risk_position_size`, `watchlist_*`
@@ -8,13 +8,15 @@
 - ✅ Supabase schema for state (`supabase/schema.sql`)
 - ✅ Platform integration docs
 
-## v0.2 — Persistence + HTTP transport
+## v0.2 (current) — Persistence + HTTP transport
 
-- [ ] Wire `src/state/supabase.ts` adapter; swap from in-memory Map
-- [ ] Streamable HTTP transport in `src/server.ts`
-- [ ] OAuth/Supabase Auth for hosted multi-tenant
-- [ ] Per-user `WEBHOOK_SHARED_SECRET` rotation
-- [ ] vitest coverage to 70%
+- ✅ Pluggable `StateBackend` interface — memory + Supabase implementations
+- ✅ Per-user scoping via AsyncLocalStorage (`runWithContext` / `currentUserId`)
+- ✅ Streamable HTTP transport with stateful session management
+- ✅ Bearer-token auth (`Authorization: Bearer <userId>`) → context userId
+- ✅ Per-user webhook token: `webhook_token_get` / `webhook_token_rotate`
+- ✅ vitest suite — 22 tests across risk, state, schemas, context
+- ⏳ Full OAuth (Supabase Auth JWT verification) — deferred to v0.3
 
 ## v0.3 — Webhook ingress
 
