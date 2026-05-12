@@ -1,6 +1,7 @@
-import { registerDataFeed } from "./registry.js";
+import { registerDataFeed, registerCodegen } from "./registry.js";
 import { createPolygonPlugin } from "./datafeed/polygon.js";
 import { createAlpacaPlugin } from "./datafeed/alpaca.js";
+import { createPineToNt8Plugin } from "./codegen/pine-to-nt8.js";
 import { log } from "../lib/logger.js";
 
 /**
@@ -21,4 +22,7 @@ export function loadEnvPlugins(): void {
     registerDataFeed(createAlpacaPlugin(alpacaKey, alpacaSecret));
     log.info("plugin loaded: alpaca");
   }
+
+  // Reference codegen plugin is always available — pure local transformation.
+  registerCodegen(createPineToNt8Plugin());
 }
