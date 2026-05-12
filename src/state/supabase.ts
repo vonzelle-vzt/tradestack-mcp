@@ -1,6 +1,12 @@
 import { randomBytes } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import type { StateBackend, Watchlist, WatchlistSummary } from "./types.js";
+import type {
+  StateBackend,
+  Watchlist,
+  WatchlistSummary,
+  AlertEvent,
+  AlertEventInput,
+} from "./types.js";
 import { log } from "../lib/logger.js";
 
 interface WatchlistRow {
@@ -16,19 +22,28 @@ interface UserSettingsRow {
   webhook_token: string | null;
 }
 
+interface AlertRow {
+  id: string;
+  user_id: string;
+  source: string;
+  symbol: string | null;
+  payload: Record<string, unknown>;
+  received_at: string;
+  acted_on: boolean;
+  outcome: "win" | "loss" | "expired" | null;
+}
+
 export function createSupabaseBackend(url: string, serviceRoleKey: string): StateBackend {
   const client: SupabaseClient = createClient(url, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  function toWatchlist(row: WatchlistRow): Watchlist {
-    return {
-      name: row.name,
-      symbols: row.symbols,
-      note: row.note ?? undefined,
-      updated_at: row.updated_at,
-    };
-  }
+  const toWatchlist = (row: WatchlistRow): Watchlist => ({
+    name: row.name,
+    symbols: row.symbols,
+    note: row.note ?? undefined,
+    updated_at: row.updated_at,
+  });
 
   return {
     kind: "supabase",
@@ -62,10 +77,7 @@ export function createSupabaseBackend(url: string, serviceRoleKey: string): Stat
         )
         .select("user_id,name,symbols,note,updated_at")
         .single<WatchlistRow>();
-      if (error || !data) {
-        log.error("supabase watchlistUpsert failed", { error: error?.message });
-        throw error ?? new Error("watchlistUpsert returned no row");
-      }
+      if (error || !data) throw error ?? new Error("watchlistUpsert returned no row");
       return toWatchlist(data);
     },
 
@@ -98,10 +110,7 @@ export function createSupabaseBackend(url: string, serviceRoleKey: string): Stat
         .from("watchlists")
         .select("name,symbols,updated_at")
         .eq("user_id", userId);
-      if (error) {
-        log.error("supabase watchlistList failed", { error: error.message });
-        throw error;
-      }
+      if (error) throw error;
       return (data ?? []).map((r) => ({
         name: r.name as string,
         size: (r.symbols as string[]).length,
@@ -115,23 +124,59 @@ export function createSupabaseBackend(url: string, serviceRoleKey: string): Stat
         .select("webhook_token")
         .eq("user_id", userId)
         .maybeSingle<UserSettingsRow>();
-      if (error) {
-        log.error("supabase webhookTokenGet failed", { error: error.message });
-        throw error;
-      }
+      if (error) throw error;
       return data?.webhook_token ?? null;
     },
 
     async webhookTokenRotate(userId) {
       const token = randomBytes(24).toString("base64url");
-      const { error } = await client
-        .from("user_settings")
-        .upsert({ user_id: userId, webhook_token: token }, { onConflict: "user_id" });
-      if (error) {
-        log.error("supabase webhookTokenRotate failed", { error: error.message });
-        throw error;
-      }
+      const { error } = await client.from("user_settings").upsert(
+        {
+          user_id: userId,
+          webhook_token: token,
+          webhook_rotated_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id" },
+      );
+      if (error) throw error;
       return token;
+    },
+
+    async userIdByWebhookToken(token) {
+      const { data, error } = await client
+        .from("user_settings")
+        .select("user_id")
+        .eq("webhook_token", token)
+        .maybeSingle<UserSettingsRow>();
+      if (error) throw error;
+      return data?.user_id ?? null;
+    },
+
+    async alertInsert(userId, evt: AlertEventInput): Promise<AlertEvent> {
+      const { data, error } = await client
+        .from("alert_events")
+        .insert({
+          user_id: userId,
+          source: evt.source,
+          symbol: evt.symbol,
+          payload: evt.payload,
+        })
+        .select("*")
+        .single<AlertRow>();
+      if (error || !data) throw error ?? new Error("alertInsert returned no row");
+      return data;
+    },
+
+    async alertsRecent(userId, limit) {
+      const { data, error } = await client
+        .from("alert_events")
+        .select("*")
+        .eq("user_id", userId)
+        .order("received_at", { ascending: false })
+        .limit(limit);
+      if (error) throw error;
+      return (data ?? []) as AlertEvent[];
     },
   };
 }

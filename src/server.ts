@@ -10,10 +10,12 @@ import { loadConfig } from "./lib/config.js";
 import { log, setLogLevel } from "./lib/logger.js";
 import { runWithContext } from "./lib/context.js";
 import { allTools } from "./tools/index.js";
+import { getStateBackend } from "./state/index.js";
+import { createWebhookRouter } from "./webhook/index.js";
 
 function buildServer(): Server {
   const server = new Server(
-    { name: "tradestack-mcp", version: "0.2.0" },
+    { name: "tradestack-mcp", version: "0.3.0" },
     { capabilities: { tools: {} } },
   );
 
@@ -62,12 +64,22 @@ async function startStdio(): Promise<void> {
 
 async function startHttp(host: string, port: number): Promise<void> {
   const app = express();
+
+  // Mount webhook router BEFORE express.json — webhook needs raw body for HMAC.
+  const cfg = loadConfig();
+  app.use(
+    createWebhookRouter({
+      backend: getStateBackend(cfg),
+      sharedSecret: cfg.webhook?.sharedSecret ?? null,
+    }),
+  );
+
   app.use(express.json({ limit: "2mb" }));
 
   const transports = new Map<string, StreamableHTTPServerTransport>();
 
   app.get("/healthz", (_req, res) => {
-    res.json({ ok: true, service: "tradestack-mcp", version: "0.2.0" });
+    res.json({ ok: true, service: "tradestack-mcp", version: "0.3.0" });
   });
 
   app.post("/mcp", async (req: Request, res: Response) => {
@@ -124,7 +136,7 @@ async function main(): Promise<void> {
   setLogLevel(cfg.logLevel);
 
   log.info("tradestack-mcp starting", {
-    version: "0.2.0",
+    version: "0.3.0",
     transport: cfg.transport,
     tools: allTools.length,
     supabase: Boolean(cfg.supabase),

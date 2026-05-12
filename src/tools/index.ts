@@ -12,6 +12,7 @@ import {
   webhookTokenTool,
   webhookRotateTool,
 } from "./state.js";
+import { alertsRecentTool } from "./alerts.js";
 import type { z, ZodTypeAny } from "zod";
 
 export interface ToolDefinition<S extends ZodTypeAny = ZodTypeAny> {
@@ -34,4 +35,5 @@ export const allTools: ToolDefinition[] = [
   watchlistListTool,
   webhookTokenTool,
   webhookRotateTool,
+  alertsRecentTool,
 ];
