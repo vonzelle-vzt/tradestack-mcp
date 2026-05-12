@@ -14,6 +14,18 @@ import {
 } from "./state.js";
 import { alertsRecentTool } from "./alerts.js";
 import { symbolOhlcvTool, symbolQuoteTool } from "./ohlcv.js";
+import {
+  compositeUpsertTool,
+  compositeListTool,
+  compositeDeleteTool,
+  compositeEvaluateTool,
+} from "./composite.js";
+import {
+  lifecycleStartTool,
+  lifecycleCompleteTool,
+  lifecycleListTool,
+  lifecyclePromoteTool,
+} from "./lifecycle.js";
 import type { z, ZodTypeAny } from "zod";
 
 export interface ToolDefinition<S extends ZodTypeAny = ZodTypeAny> {
@@ -39,4 +51,12 @@ export const allTools: ToolDefinition[] = [
   alertsRecentTool,
   symbolOhlcvTool,
   symbolQuoteTool,
+  compositeUpsertTool,
+  compositeListTool,
+  compositeDeleteTool,
+  compositeEvaluateTool,
+  lifecycleStartTool,
+  lifecycleCompleteTool,
+  lifecycleListTool,
+  lifecyclePromoteTool,
 ];

@@ -16,7 +16,7 @@ import { loadEnvPlugins } from "./plugins/bootstrap.js";
 
 function buildServer(): Server {
   const server = new Server(
-    { name: "tradestack-mcp", version: "0.4.0" },
+    { name: "tradestack-mcp", version: "0.5.0" },
     { capabilities: { tools: {} } },
   );
 
@@ -80,7 +80,7 @@ async function startHttp(host: string, port: number): Promise<void> {
   const transports = new Map<string, StreamableHTTPServerTransport>();
 
   app.get("/healthz", (_req, res) => {
-    res.json({ ok: true, service: "tradestack-mcp", version: "0.4.0" });
+    res.json({ ok: true, service: "tradestack-mcp", version: "0.5.0" });
   });
 
   app.post("/mcp", async (req: Request, res: Response) => {
@@ -138,7 +138,7 @@ async function main(): Promise<void> {
   loadEnvPlugins();
 
   log.info("tradestack-mcp starting", {
-    version: "0.4.0",
+    version: "0.5.0",
     transport: cfg.transport,
     tools: allTools.length,
     supabase: Boolean(cfg.supabase),

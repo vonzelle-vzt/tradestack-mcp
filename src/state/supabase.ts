@@ -6,6 +6,10 @@ import type {
   WatchlistSummary,
   AlertEvent,
   AlertEventInput,
+  CompositeAlert,
+  CompositeAlertInput,
+  StrategyRun,
+  StrategyMetrics,
 } from "./types.js";
 import { log } from "../lib/logger.js";
 
@@ -177,6 +181,86 @@ export function createSupabaseBackend(url: string, serviceRoleKey: string): Stat
         .limit(limit);
       if (error) throw error;
       return (data ?? []) as AlertEvent[];
+    },
+
+    async compositeUpsert(userId, input: CompositeAlertInput): Promise<CompositeAlert> {
+      const { data, error } = await client
+        .from("composite_alerts")
+        .upsert(
+          {
+            user_id: userId,
+            name: input.name,
+            symbol: input.symbol,
+            conditions: input.conditions,
+            logic: input.logic,
+            expires_at: input.expires_at ?? null,
+          },
+          { onConflict: "user_id,name" },
+        )
+        .select("*")
+        .single();
+      if (error || !data) throw error ?? new Error("compositeUpsert returned no row");
+      return data as CompositeAlert;
+    },
+
+    async compositeList(userId) {
+      const { data, error } = await client
+        .from("composite_alerts")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as CompositeAlert[];
+    },
+
+    async compositeDelete(userId, name) {
+      const { error, count } = await client
+        .from("composite_alerts")
+        .delete({ count: "exact" })
+        .eq("user_id", userId)
+        .eq("name", name);
+      if (error) throw error;
+      return (count ?? 0) > 0;
+    },
+
+    async strategyRunInsert(userId, run) {
+      const { data, error } = await client
+        .from("strategy_runs")
+        .insert({
+          user_id: userId,
+          strategy_name: run.strategy_name,
+          stage: run.stage,
+          pine_source: run.pine_source,
+          config: run.config,
+          metrics: run.metrics,
+        })
+        .select("*")
+        .single();
+      if (error || !data) throw error ?? new Error("strategyRunInsert returned no row");
+      return data as StrategyRun;
+    },
+
+    async strategyRunComplete(userId, id, metrics: StrategyMetrics) {
+      const { data, error } = await client
+        .from("strategy_runs")
+        .update({ metrics, ended_at: new Date().toISOString() })
+        .eq("user_id", userId)
+        .eq("id", id)
+        .select("*")
+        .single();
+      if (error || !data) throw error ?? new Error("strategyRunComplete failed");
+      return data as StrategyRun;
+    },
+
+    async strategyRunsByName(userId, name) {
+      const { data, error } = await client
+        .from("strategy_runs")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("strategy_name", name)
+        .order("started_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as StrategyRun[];
     },
   };
 }
