@@ -2,7 +2,7 @@ import { request } from "undici";
 import { LRUCache } from "lru-cache";
 import { log } from "./logger.js";
 
-const cache = new LRUCache<string, unknown>({
+const cache = new LRUCache<string, object>({
   max: 1000,
   ttl: 1000 * 60 * 5,
 });
@@ -20,10 +20,10 @@ export async function httpJson<T>(url: string, opts: FetchOpts = {}): Promise<T>
   const { method = "GET", headers = {}, body, timeoutMs = 10_000, cacheKey, cacheTtlMs } = opts;
 
   if (cacheKey) {
-    const cached = cache.get(cacheKey) as T | undefined;
+    const cached = cache.get(cacheKey);
     if (cached !== undefined) {
       log.debug("cache hit", { cacheKey });
-      return cached;
+      return cached as T;
     }
   }
 
@@ -42,7 +42,9 @@ export async function httpJson<T>(url: string, opts: FetchOpts = {}): Promise<T>
       throw new Error(`HTTP ${res.statusCode}: ${text.slice(0, 200)}`);
     }
     const data = (await res.body.json()) as T;
-    if (cacheKey) cache.set(cacheKey, data, { ttl: cacheTtlMs });
+    if (cacheKey && data !== null && typeof data === "object") {
+      cache.set(cacheKey, data as object, { ttl: cacheTtlMs });
+    }
     return data;
   } finally {
     clearTimeout(timer);
