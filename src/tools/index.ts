@@ -27,6 +27,8 @@ import {
   lifecyclePromoteTool,
 } from "./lifecycle.js";
 import { codegenTranspileTool, codegenValidateTool, codegenListTool } from "./codegen.js";
+import { orderRouteTool, positionsListTool, accountInfoTool, brokersListTool } from "./order.js";
+import { portfolioVarTool, correlationMatrixTool } from "./portfolio.js";
 import type { z, ZodTypeAny } from "zod";
 
 export interface ToolDefinition<S extends ZodTypeAny = ZodTypeAny> {
@@ -63,4 +65,10 @@ export const allTools: ToolDefinition[] = [
   codegenTranspileTool,
   codegenValidateTool,
   codegenListTool,
+  orderRouteTool,
+  positionsListTool,
+  accountInfoTool,
+  brokersListTool,
+  portfolioVarTool,
+  correlationMatrixTool,
 ];
