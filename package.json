@@ -39,7 +39,8 @@
     "eslint": "^9.15.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.5"
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
   },
   "engines": {
     "node": ">=20"
@@ -64,5 +65,8 @@
   "homepage": "https://github.com/vonzelle-vzt/tradestack-mcp#readme",
   "bugs": {
     "url": "https://github.com/vonzelle-vzt/tradestack-mcp/issues"
+  },
+  "overrides": {
+    "esbuild": "^0.28.2"
   }
 }
