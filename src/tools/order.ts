@@ -3,7 +3,7 @@ import { listPlugins } from "../plugins/registry.js";
 import type { BrokerPlugin, BrokerOrder } from "../plugins/types.js";
 import { riskPositionSize } from "./risk.js";
 
-export const orderRouteSchema = z.object({
+const orderRouteSchema = z.object({
   broker: z.string().min(1).describe("Registered broker plugin name (alpaca, tradelocker, metaapi, ninjatrader-ati, ...)"),
   symbol: z.string().min(1),
   side: z.enum(["buy", "sell"]),
@@ -117,7 +117,7 @@ export const orderRouteTool = {
   },
 };
 
-export const positionsListSchema = z.object({ broker: z.string().min(1) });
+const positionsListSchema = z.object({ broker: z.string().min(1) });
 export const positionsListTool = {
   name: "positions_list",
   description: "List open positions on a registered broker.",
@@ -130,7 +130,7 @@ export const positionsListTool = {
   },
 };
 
-export const accountInfoSchema = z.object({ broker: z.string().min(1) });
+const accountInfoSchema = z.object({ broker: z.string().min(1) });
 export const accountInfoTool = {
   name: "account_info",
   description: "Return equity, cash, and buying power for a registered broker.",
@@ -143,7 +143,7 @@ export const accountInfoTool = {
   },
 };
 
-export const brokersListSchema = z.object({});
+const brokersListSchema = z.object({});
 export const brokersListTool = {
   name: "brokers_list",
   description: "List all registered broker plugins and their capabilities.",

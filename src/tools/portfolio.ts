@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const portfolioVarSchema = z.object({
+const portfolioVarSchema = z.object({
   positions: z.array(
     z.object({
       symbol: z.string().min(1),
@@ -93,7 +93,7 @@ export const portfolioVarTool = {
   },
 };
 
-export const correlationMatrixSchema = z.object({
+const correlationMatrixSchema = z.object({
   returns: z.record(z.array(z.number())).describe("Map of symbol → return series. All series should be the same length."),
 });
 

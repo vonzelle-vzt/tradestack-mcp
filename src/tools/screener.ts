@@ -39,11 +39,11 @@ export const screenerQuerySchema = z.object({
   range: z.tuple([z.number().int().min(0), z.number().int().min(1).max(200)]).default([0, 50]),
 });
 
-export type ScreenerQuery = z.infer<typeof screenerQuerySchema>;
+type ScreenerQuery = z.infer<typeof screenerQuerySchema>;
 
 const SCANNER_URL = (market: string) => `https://scanner.tradingview.com/${market}/scan`;
 
-export async function runScreener(input: ScreenerQuery): Promise<unknown> {
+async function runScreener(input: ScreenerQuery): Promise<unknown> {
   const body = JSON.stringify({
     filter: input.filters,
     columns: input.columns,

@@ -11,7 +11,7 @@ const conditionSchema = z.object({
   value: z.union([z.number(), z.tuple([z.number(), z.number()])]),
 });
 
-export const compositeUpsertSchema = z.object({
+const compositeUpsertSchema = z.object({
   name: z.string().min(1),
   symbol: z.string().min(1),
   conditions: z.array(conditionSchema).min(1).max(10),
@@ -42,7 +42,7 @@ export const compositeListTool = {
   handler: async () => backend().compositeList(currentUserId()),
 };
 
-export const compositeDeleteSchema = z.object({ name: z.string().min(1) });
+const compositeDeleteSchema = z.object({ name: z.string().min(1) });
 
 export const compositeDeleteTool = {
   name: "alert_composite_delete",

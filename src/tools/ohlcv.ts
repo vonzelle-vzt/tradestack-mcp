@@ -4,7 +4,7 @@ import type { DataFeedPlugin } from "../plugins/types.js";
 
 const TIMEFRAMES = ["1m", "5m", "15m", "30m", "1h", "4h", "1d", "1w"] as const;
 
-export const symbolOhlcvSchema = z.object({
+const symbolOhlcvSchema = z.object({
   symbol: z.string().min(1),
   timeframe: z.enum(TIMEFRAMES).default("1d"),
   from: z.string().optional().describe("ISO date YYYY-MM-DD (inclusive)"),
@@ -43,7 +43,7 @@ export const symbolOhlcvTool = {
   },
 };
 
-export const symbolQuoteSchema = z.object({
+const symbolQuoteSchema = z.object({
   symbol: z.string().min(1),
   feed: z.string().optional(),
 });

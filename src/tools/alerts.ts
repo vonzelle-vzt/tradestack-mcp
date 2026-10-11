@@ -5,7 +5,7 @@ import { loadConfig } from "../lib/config.js";
 
 const backend = () => getStateBackend(loadConfig());
 
-export const alertsRecentSchema = z.object({
+const alertsRecentSchema = z.object({
   limit: z.number().int().min(1).max(100).default(20),
 });
 

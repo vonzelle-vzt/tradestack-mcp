@@ -8,14 +8,14 @@ export const pineCompileSchema = z.object({
   source: z.string().min(1).describe("Full PineScript source. Must begin with //@version=5 or //@version=6."),
 });
 
-export interface PineCompileResult {
+interface PineCompileResult {
   success: boolean;
   errors: Array<{ line?: number; column?: number; message: string }>;
   transport_error?: boolean;
   raw?: unknown;
 }
 
-export async function pineCompile(input: z.infer<typeof pineCompileSchema>): Promise<PineCompileResult> {
+async function pineCompile(input: z.infer<typeof pineCompileSchema>): Promise<PineCompileResult> {
   try {
     const raw = (await httpForm(
       PINE_FACADE_URL,

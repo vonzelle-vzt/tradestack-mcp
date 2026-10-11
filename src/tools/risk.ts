@@ -13,7 +13,7 @@ export const riskPositionSizeSchema = z.object({
   target_vol: z.number().positive().optional().describe("Required if method = vol_target"),
 });
 
-export interface PositionSizeResult {
+interface PositionSizeResult {
   qty: number;
   risk_per_unit: number;
   total_risk: number;

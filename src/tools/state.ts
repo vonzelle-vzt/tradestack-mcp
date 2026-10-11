@@ -5,14 +5,14 @@ import { loadConfig } from "../lib/config.js";
 
 const backend = () => getStateBackend(loadConfig());
 
-export const watchlistGetSchema = z.object({ name: z.string().min(1) });
-export const watchlistUpsertSchema = z.object({
+const watchlistGetSchema = z.object({ name: z.string().min(1) });
+const watchlistUpsertSchema = z.object({
   name: z.string().min(1),
   symbols: z.array(z.string().min(1)).min(0),
   note: z.string().optional(),
 });
-export const watchlistAddSchema = z.object({ name: z.string().min(1), symbol: z.string().min(1) });
-export const watchlistRemoveSchema = z.object({ name: z.string().min(1), symbol: z.string().min(1) });
+const watchlistAddSchema = z.object({ name: z.string().min(1), symbol: z.string().min(1) });
+const watchlistRemoveSchema = z.object({ name: z.string().min(1), symbol: z.string().min(1) });
 
 export const watchlistGetTool = {
   name: "watchlist_get",
@@ -55,7 +55,7 @@ export const watchlistListTool = {
   handler: async () => backend().watchlistList(currentUserId()),
 };
 
-export const webhookTokenSchema = z.object({});
+const webhookTokenSchema = z.object({});
 export const webhookTokenTool = {
   name: "webhook_token_get",
   description:
