@@ -2,13 +2,13 @@ import { z } from "zod";
 
 const SNAPSHOT_URL = "https://www.tradingview.com/snapshot/";
 
-export const chartSnapshotSchema = z.object({
+const chartSnapshotSchema = z.object({
   symbol: z.string().min(1).describe('Exchange-prefixed symbol, e.g. "NASDAQ:AAPL" or "BINANCE:BTCUSDT"'),
   interval: z.enum(["1", "5", "15", "30", "60", "240", "D", "W", "M"]).default("D"),
   studies: z.array(z.string()).default([]).describe("Indicator names to overlay, e.g. ['RSI', 'MACD']"),
 });
 
-export interface ChartSnapshotResult {
+interface ChartSnapshotResult {
   image_url: string;
   symbol: string;
   interval: string;
@@ -18,7 +18,7 @@ export interface ChartSnapshotResult {
   };
 }
 
-export async function chartSnapshot(input: z.infer<typeof chartSnapshotSchema>): Promise<ChartSnapshotResult> {
+async function chartSnapshot(input: z.infer<typeof chartSnapshotSchema>): Promise<ChartSnapshotResult> {
   const id = encodeURIComponent(`${input.symbol}-${input.interval}-${input.studies.join(",")}`);
   const url = `${SNAPSHOT_URL}${id}.png`;
 

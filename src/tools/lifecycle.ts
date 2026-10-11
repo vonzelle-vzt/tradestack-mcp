@@ -8,7 +8,7 @@ const backend = () => getStateBackend(loadConfig());
 
 const stages = ["replay", "paper", "live"] as const;
 
-export const lifecycleStartSchema = z.object({
+const lifecycleStartSchema = z.object({
   strategy_name: z.string().min(1),
   stage: z.enum(stages),
   pine_source: z.string().optional(),
@@ -30,7 +30,7 @@ export const lifecycleStartTool = {
     }),
 };
 
-export const lifecycleCompleteSchema = z.object({
+const lifecycleCompleteSchema = z.object({
   id: z.string().uuid(),
   metrics: z.object({
     sharpe: z.number().optional(),
@@ -52,7 +52,7 @@ export const lifecycleCompleteTool = {
     backend().strategyRunComplete(currentUserId(), id, metrics as StrategyMetrics),
 };
 
-export const lifecycleListSchema = z.object({ strategy_name: z.string().min(1) });
+const lifecycleListSchema = z.object({ strategy_name: z.string().min(1) });
 
 export const lifecycleListTool = {
   name: "lifecycle_runs",
@@ -62,19 +62,19 @@ export const lifecycleListTool = {
     backend().strategyRunsByName(currentUserId(), strategy_name),
 };
 
-export interface PromotionGate {
+interface PromotionGate {
   min_sharpe: number;
   max_dd: number;
   min_trades: number;
   min_win_rate: number;
 }
 
-export const DEFAULT_GATES: Record<"replay_to_paper" | "paper_to_live", PromotionGate> = {
+const DEFAULT_GATES: Record<"replay_to_paper" | "paper_to_live", PromotionGate> = {
   replay_to_paper: { min_sharpe: 1.0, max_dd: 0.15, min_trades: 30, min_win_rate: 0.45 },
   paper_to_live: { min_sharpe: 1.2, max_dd: 0.12, min_trades: 50, min_win_rate: 0.5 },
 };
 
-export const lifecyclePromoteSchema = z.object({
+const lifecyclePromoteSchema = z.object({
   strategy_name: z.string().min(1),
   to: z.enum(["paper", "live"]),
   gate: z

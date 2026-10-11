@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { httpJson } from "../lib/http.js";
 
-export const symbolSearchSchema = z.object({
+const symbolSearchSchema = z.object({
   query: z.string().min(1),
   exchange: z.string().optional(),
   type: z.enum(["stock", "futures", "forex", "crypto", "index", "fund", "bond", "economic"]).optional(),
@@ -19,7 +19,7 @@ interface SymbolSearchResult {
   provider_id?: string;
 }
 
-export async function symbolSearch(input: z.infer<typeof symbolSearchSchema>): Promise<{ matches: SymbolSearchResult[] }> {
+async function symbolSearch(input: z.infer<typeof symbolSearchSchema>): Promise<{ matches: SymbolSearchResult[] }> {
   const params = new URLSearchParams({
     text: input.query,
     hl: "1",

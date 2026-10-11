@@ -2,7 +2,7 @@ import { z } from "zod";
 import { listPlugins } from "../plugins/registry.js";
 import type { CodegenPlugin } from "../plugins/types.js";
 
-export const codegenTranspileSchema = z.object({
+const codegenTranspileSchema = z.object({
   source: z.string().min(1),
   from: z.string().min(1).describe("Source language, e.g. 'pinescript'"),
   to: z.string().min(1).describe("Target language, e.g. 'ninjascript' / 'mql5' / 'tradelocker'"),
@@ -34,7 +34,7 @@ export const codegenTranspileTool = {
   },
 };
 
-export const codegenValidateSchema = z.object({
+const codegenValidateSchema = z.object({
   code: z.string().min(1),
   language: z.string().min(1),
   plugin: z.string().optional(),
@@ -59,7 +59,7 @@ export const codegenValidateTool = {
   },
 };
 
-export const codegenListSchema = z.object({});
+const codegenListSchema = z.object({});
 export const codegenListTool = {
   name: "codegen_list",
   description: "List all registered codegen plugins and the language pairs they support.",

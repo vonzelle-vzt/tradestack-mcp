@@ -1,6 +1,6 @@
 import { log } from "./logger.js";
 
-export interface ToolCallAuditEntry {
+interface ToolCallAuditEntry {
   tool: string;
   user_id: string;
   duration_ms: number;
@@ -9,7 +9,7 @@ export interface ToolCallAuditEntry {
   arg_keys: string[];
 }
 
-export function auditToolCall(entry: ToolCallAuditEntry): void {
+function auditToolCall(entry: ToolCallAuditEntry): void {
   // Logger writes JSONL to stderr. Suitable for log shippers (Vector / fluentbit).
   // Future: optional persistence to Supabase audit_log table.
   log.info("audit.tool_call", {
