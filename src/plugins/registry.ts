@@ -3,16 +3,12 @@ import { log } from "../lib/logger.js";
 
 const plugins = new Map<string, Plugin>();
 
-export function registerPlugin(p: Plugin): void {
+function registerPlugin(p: Plugin): void {
   if (plugins.has(p.name)) {
     log.warn("plugin already registered, overwriting", { name: p.name });
   }
   plugins.set(p.name, p);
   log.info("plugin registered", { name: p.name, kind: p.kind });
-}
-
-export function getPlugin<T extends Plugin>(name: string): T | undefined {
-  return plugins.get(name) as T | undefined;
 }
 
 export function listPlugins(kind?: Plugin["kind"]): Plugin[] {
