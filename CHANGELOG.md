@@ -5,6 +5,11 @@ All notable changes to TradeStack MCP are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **Breaking:** minimum Node.js is now 22 (`engines.node: >=22`). Node 20 is end-of-life; Node 24 (current LTS) is the development default via `.nvmrc`, and CI tests 22.x and 24.x.
+
 ## [1.0.0] — 2026-05-12
 
 ### Added
