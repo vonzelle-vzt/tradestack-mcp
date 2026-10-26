@@ -5,7 +5,7 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { CallToolRequestSchema, ListToolsRequestSchema, isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
-import { zodToJsonSchema } from "zod-to-json-schema";
+import { z } from "zod";
 import { loadConfig } from "./lib/config.js";
 import { log, setLogLevel } from "./lib/logger.js";
 import { runWithContext, currentUserId } from "./lib/context.js";
@@ -25,7 +25,7 @@ function buildServer(): Server {
     tools: allTools.map((t) => ({
       name: t.name,
       description: t.description,
-      inputSchema: zodToJsonSchema(t.inputSchema, { target: "openApi3" }) as Record<string, unknown>,
+      inputSchema: z.toJSONSchema(t.inputSchema, { target: "draft-7", io: "input" }) as Record<string, unknown>,
     })),
   }));
 

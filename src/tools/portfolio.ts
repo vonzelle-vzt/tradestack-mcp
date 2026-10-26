@@ -94,7 +94,7 @@ export const portfolioVarTool = {
 };
 
 export const correlationMatrixSchema = z.object({
-  returns: z.record(z.array(z.number())).describe("Map of symbol → return series. All series should be the same length."),
+  returns: z.record(z.string(), z.array(z.number())).describe("Map of symbol → return series. All series should be the same length."),
 });
 
 export const correlationMatrixTool = {
