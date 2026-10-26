@@ -55,7 +55,7 @@ export const compositeDeleteTool = {
 
 const evalConditionSchema = z.object({
   name: z.string().min(1),
-  observation: z.record(z.union([z.number(), z.string(), z.boolean()])),
+  observation: z.record(z.string(), z.union([z.number(), z.string(), z.boolean()])),
 });
 
 function evaluate(value: unknown, op: string, target: number | [number, number]): boolean {

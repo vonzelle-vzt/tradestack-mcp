@@ -35,7 +35,8 @@ export interface ToolDefinition<S extends ZodTypeAny = ZodTypeAny> {
   name: string;
   description: string;
   inputSchema: S;
-  handler: (input: z.infer<S>) => Promise<unknown>;
+  // Method syntax keeps parameter bivariance so concrete tools fit the erased ToolDefinition[].
+  handler(input: z.infer<S>): Promise<unknown>;
 }
 
 export const allTools: ToolDefinition[] = [

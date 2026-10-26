@@ -12,7 +12,7 @@ export const lifecycleStartSchema = z.object({
   strategy_name: z.string().min(1),
   stage: z.enum(stages),
   pine_source: z.string().optional(),
-  config: z.record(z.unknown()).default({}),
+  config: z.record(z.string(), z.unknown()).default({}),
 });
 
 export const lifecycleStartTool = {
